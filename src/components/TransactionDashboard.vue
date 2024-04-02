@@ -2,9 +2,14 @@
   <div class="container">
     <AppBar />
     <div class="main-content">
-      <div class="header">
+      <div class="header pb-2">
         <h4>Transactions</h4>
-        <v-btn size="small" color="#26CA99" @click="openDialog">Add</v-btn>
+        <div class="header-right-col">
+          <filter-button :onClickMenu="onHandleFilter"></filter-button>
+          <v-btn size="small" color="#26CA99" @click="openDialog">Add</v-btn>
+        </div>
+      </div>
+      <div>
         <form-dialog
           :title="dialogTitle"
           v-model="isOpenDialog"
@@ -64,7 +69,8 @@ import CategoryService from "../services/CategoryService";
 import TransactionService from "@/services/TransactionService";
 import CategorySelect from "../components/CategorySelect.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
-import { format } from "date-fns";
+import FilterButton from "../components/FilterButton.vue";
+import { formatDate, getDateRange, sortByDate } from "../commons/utils.js";
 
 export default {
   name: "TransactionDashboard",
@@ -74,6 +80,7 @@ export default {
     TransactionList,
     CategorySelect,
     ConfirmDialog,
+    FilterButton,
   },
   data() {
     return {
@@ -85,7 +92,7 @@ export default {
         description: "",
         category: null,
         amount: "",
-        date: format(new Date(), "yyyy-MM-dd"),
+        date: formatDate(new Date()),
       },
       categories: [],
       isEdit: false,
@@ -99,7 +106,8 @@ export default {
   methods: {
     async fetchTransactions() {
       // fetch transactions
-      this.transactions = await TransactionService.get(1); // TODO: get userId
+      const result = await TransactionService.get(1); // TODO: get userId
+      this.transactions = sortByDate(result); // sort transactions data by date
     },
     async fetchCategories() {
       // fetch categories
@@ -141,6 +149,7 @@ export default {
 
       this.resetForm();
       this.selectedItem = null;
+      sortByDate(this.transactions); //  sort transactions data by date
     },
     openDialog() {
       this.isOpenDialog = true;
@@ -182,7 +191,7 @@ export default {
       this.formData.description = "";
       this.formData.category = this.categories[1];
       this.formData.amount = "";
-      this.formData.date = format(new Date(), "yyyy-MM-dd");
+      this.formData.date = formatDate(new Date());
     },
     onClickDelete(selected) {
       this.isOpenConfirmDialog = true;
@@ -208,6 +217,16 @@ export default {
       };
       return resData;
     },
+    async onHandleFilter(timeFrame) {
+      const { startDate, endDate } = getDateRange(timeFrame);
+      const userId = 1; // TODO: get userId
+      const response = await TransactionService.filterByDate(
+        userId,
+        formatDate(startDate),
+        formatDate(endDate)
+      );
+      this.transactions = response;
+    },
   },
 };
 </script>
@@ -227,5 +246,11 @@ export default {
   display: flex;
   /* border: 1px solid green; */
   justify-content: space-between;
+  align-items: center;
+}
+
+.header-right-col {
+  display: flex;
+  gap: 10px;
 }
 </style>
