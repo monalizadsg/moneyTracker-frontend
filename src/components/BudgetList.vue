@@ -37,7 +37,7 @@
                             ></v-btn>
                         </div>
                     </template>
-                    <div class="progress-bar">
+                    <!-- <div class="progress-bar">
                         <v-progress-linear :percentage="budget.percentageSpent" color="green" height="15">
                             <template v-slot:default="{ value }" >
                                 <strong style="font-size: 12px; text-align: center; display: inline-block; width: fit-content;">
@@ -45,7 +45,7 @@
                                 </strong>
                             </template>
                         </v-progress-linear>
-                    </div>
+                    </div> -->
                 </v-card>
             </v-list-item>
         </v-list>
@@ -86,7 +86,7 @@ export default {
                 console.log("This is to show transactions: "+ transactions);
                 let totalSpent = 0;
 
-                // Aggregate total spent for the current budget category
+                // adding of spent
                 for (let transaction of transactions) {
                     if (transaction.category.name === budget.category.name) {
                         totalSpent += transaction.amount;

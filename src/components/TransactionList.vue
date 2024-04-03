@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="transaction-list">
     <v-list v-if="transactions" lines="one" class="list">
       <v-list-item
         v-for="(item, i) in transactions"
@@ -39,12 +39,14 @@
                 icon="mdi-pencil"
                 variant="text"
                 size="small"
+                @click="handleEdit(item)"
               ></v-btn>
               <v-btn
                 color="grey-lighten-1"
                 icon="mdi-delete"
                 variant="text"
                 size="small"
+                @click="handleDelete(item)"
               ></v-btn>
             </div>
           </template>
@@ -55,28 +57,39 @@
 </template>
 
 <script>
-import TransactionService from "../services/TransactionService";
 export default {
   name: "TransactionList",
-  data() {
-    return {
-      transactions: [],
-    };
-  },
-  async created() {
-    // fetch transactions
-    this.transactions = await TransactionService.get(1);
-    console.log(this.transactions);
+  props: {
+    transactions: Array,
+    onEdit: {
+      type: Function,
+      required: true,
+    },
+    onDelete: {
+      type: Function,
+      required: true,
+    },
   },
   methods: {
     getSign(type) {
       return type === "income" ? "+" : "-";
+    },
+    handleEdit(item) {
+      this.onEdit(item);
+    },
+    handleDelete(item) {
+      this.onDelete(item);
     },
   },
 };
 </script>
 
 <style scoped>
+.transaction-list {
+  /* border: 1px solid red; */
+  height: calc(100vh - 110px);
+  overflow-y: auto;
+}
 .list {
   padding: 20px 5px;
 }
