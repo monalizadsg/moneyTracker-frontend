@@ -35,6 +35,17 @@ class TransactionService {
       console.log("Error: " + error);
     }
   }
+
+  async filterByDate(userId, start, end) {
+    try {
+      const response = await api.get(
+        `/transactions/filter?userId=${userId}&startDate=${start}&endDate=${end}`
+      );
+      return response.data;
+    } catch (error) {
+      console.log("Error: " + error);
+    }
+  }
 }
 
 export default new TransactionService();
