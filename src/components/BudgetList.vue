@@ -19,7 +19,7 @@
                     <template v-slot:append v-if="categoryTotals[budget.category.name] !== undefined">
                         <div class="right-col">
                             <div class="right-col-item">
-                                {{ categoryTotals[budget.category.name] }} of ${{ budget.amount }}
+                                ${{ categoryTotals[budget.category.name] }} of ${{ budget.amount }}
                             </div>
                         </div>
                         <div>
@@ -28,24 +28,33 @@
                                 icon="mdi-pencil"
                                 variant="text"
                                 size="small"
+                                @click="handleEdit(budget)"
                             ></v-btn>
                             <v-btn
                                 color="grey-lighten-1"
                                 icon="mdi-delete"
                                 variant="text"
                                 size="small"
+                                @click="handleDelete(budget)"
                             ></v-btn>
                         </div>
                     </template>
-                    <!-- <div class="progress-bar">
-                        <v-progress-linear :percentage="budget.percentageSpent" color="green" height="15">
+                    <div class="progress-bar">
+                        <v-progress-linear :percentage="calculatePercentageSpent(budget.totalSpent, budget.amount)" :color="percentage > 75 ? 'red' : 'green'" height="15" v-model="percentage">
                             <template v-slot:default="{ value }" >
                                 <strong style="font-size: 12px; text-align: center; display: inline-block; width: fit-content;">
                                 {{ value }}%
                                 </strong>
                             </template>
                         </v-progress-linear>
-                    </div> -->
+                        <!-- <v-progress-linear :percentage="budget.percentageSpent" color="green" height="15">
+                            <template v-slot:default="{ value }" >
+                                <strong style="font-size: 12px; text-align: center; display: inline-block; width: fit-content;">
+                                {{ value }}%
+                                </strong>
+                            </template>
+                        </v-progress-linear> -->
+                    </div>
                 </v-card>
             </v-list-item>
         </v-list>
@@ -58,6 +67,17 @@ import BudgetService from "../services/BudgetService";
 
 export default {  
     name: "BudgetList",
+    //newly added
+    props: {
+        onEdit: {
+            type: Function,
+            required: true,
+        },
+        onDelete: {
+            type: Function,
+            required: true,
+        },
+    },
     data() {
         return {
             budgets: [],
@@ -69,7 +89,16 @@ export default {
         await this.calculateBudgetsTotalSpent();
         console.log(this.budgets);
     },
+
     methods: {
+        handleEdit(budget) {
+            console.log("Selected item in handleEdit:", budget); // Add this line
+
+            this.onEdit(budget);
+        },
+        handleDelete(budget) {
+            this.onDelete(budget);
+        },
         getTimeFrame(timeFrame) {
             if (timeFrame === "month") {
                 return timeFrame = "Monthly";
@@ -94,8 +123,8 @@ export default {
                 }
 
                 budget.totalSpent = totalSpent;
-                budget.percentageSpent = this.calculatePercentageSpent(totalSpent, budget.amount);
-                console.log(budget.percentageSpent);
+                // budget.percentageSpent = this.calculatePercentageSpent(totalSpent, budget.amount);
+                // console.log(budget.percentageSpent);
 
                 // Update categoryTotals
                 if (!this.categoryTotals[budget.category.name]) {
@@ -109,8 +138,13 @@ export default {
             if (budgetAmount === 0) {
                 return 0;
             }
-            return Math.round((totalSpent / budgetAmount) * 100);
+            this.percentage = Math.round((totalSpent / budgetAmount) * 100);
+            return this.percentage;
         },
+        async updateBudgets() {
+            this.budgets = await BudgetService.get(1);
+            await this.calculateBudgetsTotalSpent();
+    }
     }
 }
 </script>
