@@ -21,7 +21,5 @@ export default {
   box-sizing: border-box;
 }
 
-html {
-  overflow-y: hidden !important;
-}
+
 </style>

@@ -253,4 +253,8 @@ export default {
   display: flex;
   gap: 10px;
 }
+
+html {
+  overflow-y: hidden !important;
+}
 </style>
