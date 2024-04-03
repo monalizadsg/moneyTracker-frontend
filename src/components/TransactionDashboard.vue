@@ -228,4 +228,8 @@ export default {
   /* border: 1px solid green; */
   justify-content: space-between;
 }
+
+html {
+  overflow-y: hidden !important;
+}
 </style>
