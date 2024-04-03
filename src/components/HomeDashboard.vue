@@ -23,11 +23,17 @@
           </v-card>
         </v-col>
       </v-row>
-<br>
+      <br />
       <h3>Expenses by Category</h3>
 
       <v-row class="mt-5">
-        <v-col cols="12" sm="6" md="4" v-for="(amount, category) in expenseStats" :key="category">
+        <v-col
+          cols="12"
+          sm="6"
+          md="4"
+          v-for="(amount, category) in expenseStats"
+          :key="category"
+        >
           <v-card class="mx-auto" outlined>
             <v-card-title>{{ category }}</v-card-title>
             <v-card-text>${{ amount.toFixed(2) }}</v-card-text>
@@ -35,14 +41,14 @@
         </v-col>
       </v-row>
 
-        <!-- New section for Recent Transactions and Goals without cards -->
+      <!-- New section for Recent Transactions and Goals without cards -->
       <v-row class="dashboard-sections">
         <!-- Recent Transactions -->
         <v-col cols="12" md="6">
           <h3>Recent Transactions</h3>
           <TransactionList :transactions="limitedTransactions" />
         </v-col>
-        
+
         <!-- Goals -->
         <v-col cols="12" md="6">
           <h3>Goals</h3>
@@ -65,7 +71,7 @@ export default {
   components: {
     AppBar,
     TransactionList,
-    GoalsList
+    GoalsList,
   },
   data() {
     return {
@@ -74,7 +80,7 @@ export default {
       totalExpenses: 0,
       expenseStats: {},
       transactions: [],
-      goals: []
+      goals: [],
     };
   },
   computed: {
@@ -85,7 +91,7 @@ export default {
     limitedGoals() {
       // Limit to 2-3 goals
       return this.goals.slice(0, 3);
-    }
+    },
   },
   async created() {
     await this.fetchData();
@@ -98,11 +104,11 @@ export default {
       const transactions = await TransactionService.get(userId);
 
       this.totalIncome = transactions
-        .filter(t => t.category.type === "income")
+        .filter((t) => t.category.type === "income")
         .reduce((acc, curr) => acc + curr.amount, 0);
 
       this.totalExpenses = transactions
-        .filter(t => t.category.type === "expense")
+        .filter((t) => t.category.type === "expense")
         .reduce((acc, curr) => acc + curr.amount, 0);
 
       this.totalBalance = this.totalIncome - this.totalExpenses;
@@ -110,7 +116,9 @@ export default {
       this.calculateExpenseStatistics(transactions);
     },
     calculateExpenseStatistics(transactions) {
-      const expenses = transactions.filter(t => t.category.type === "expense");
+      const expenses = transactions.filter(
+        (t) => t.category.type === "expense"
+      );
 
       this.expenseStats = expenses.reduce((acc, curr) => {
         const categoryName = curr.category.name;
@@ -128,14 +136,14 @@ export default {
     async fetchGoals() {
       const userId = 1; // Replace with actual logic to retrieve user's ID
       this.goals = await GoalsServices.get(userId);
-    }
-  }
+    },
+  },
 };
 </script>
 
 <style scoped>
 .container {
-  min-height: 100vh; /* Ensures the container takes up at least the full viewport height */
+  height: 100%;
   display: flex;
   flex-direction: column;
 }
@@ -153,6 +161,8 @@ export default {
 .v-card {
   text-align: center;
 }
+
+.transaction-list {
+  height: auto;
+}
 </style>
-
-
