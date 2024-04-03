@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-list">
+  <div class="transaction-list pb-4">
     <v-list v-if="transactions" lines="one" class="list">
       <v-list-item
         v-for="(item, i) in transactions"
