@@ -10,6 +10,16 @@ class TransactionService {
     }
   }
 
+  
+  async getByUserIdAndCategory(userId, categoryName) {
+    try {
+      const response = await api.get(`/transactions?userId=${userId}&category=${categoryName}`);
+      return response.data;
+    } catch (error) {
+      console.log("Error: " + error);
+    }
+  }
+
   async create(data) {
     try {
       const response = await api.post(`/transactions`, data);
@@ -18,6 +28,8 @@ class TransactionService {
       console.log("Error: " + error);
     }
   }
+
+
 
   async update(data, id) {
     try {
