@@ -13,6 +13,7 @@
         />
         <NavItem icon="mdi-wallet" title="Budget" path="/budgets" />
         <NavItem icon="mdi-bullseye" title="Goal" path="/goals" />
+        <NavItem icon="mdi-form-select" title="Category" path="/categories" />
       </v-list>
     </div>
   </div>

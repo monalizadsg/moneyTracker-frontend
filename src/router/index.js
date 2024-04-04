@@ -2,6 +2,7 @@ import BudgetDashboard from "@/components/BudgetDashboard.vue";
 import GoalDashboard from "@/components/GoalDashboard.vue";
 import HomeDashboard from "@/components/HomeDashboard.vue";
 import TransactionDashboard from "@/components/TransactionDashboard.vue";
+import CategoryDashboard from "@/components/CategoryDashboard.vue";
 import { createWebHistory, createRouter } from "vue-router";
 
 const routes = [
@@ -25,6 +26,11 @@ const routes = [
     component: GoalDashboard,
     name: "Goal",
   },
+  {
+    path: "/categories",
+    component: CategoryDashboard,
+    name: "Caetegory"
+  }
 ];
 
 const router = createRouter({
