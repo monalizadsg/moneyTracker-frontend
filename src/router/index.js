@@ -2,6 +2,7 @@ import BudgetDashboard from "@/components/BudgetDashboard.vue";
 import GoalDashboard from "@/components/GoalDashboard.vue";
 import HomeDashboard from "@/components/HomeDashboard.vue";
 import TransactionDashboard from "@/components/TransactionDashboard.vue";
+import CategoryDashboard from "@/components/CategoryDashboard.vue";
 import Register from "@/components/AccountRegister.vue";
 import Login from "@/components/AccountLogin.vue";
 
@@ -42,6 +43,11 @@ const routes = [
     component: Login,
     name: "Login",
   },
+  {
+    path: "/categories",
+    component: CategoryDashboard,
+    name: "Caetegory",
+  },
 ];
 
 const router = createRouter({
@@ -51,11 +57,11 @@ const router = createRouter({
 
 // Navigation guard to check for authentication
 router.beforeEach((to, from, next) => {
-  const requiresAuth = to.matched.some(record => record.meta.requiresAuth);
-  const isAuthenticated = localStorage.getItem('user'); // or however you're storing logged-in state
+  const requiresAuth = to.matched.some((record) => record.meta.requiresAuth);
+  const isAuthenticated = localStorage.getItem("user"); // or however you're storing logged-in state
 
   if (requiresAuth && !isAuthenticated) {
-    next('/login');
+    next("/login");
   } else {
     next();
   }
