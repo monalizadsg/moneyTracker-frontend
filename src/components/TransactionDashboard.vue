@@ -3,7 +3,7 @@
     <AppBar />
     <div class="main-content">
       <div class="header pb-2">
-        <h4>Transactions</h4>
+        <h3>Transactions</h3>
         <div class="header-right-col">
           <filter-button :onClickMenu="onHandleFilter"></filter-button>
           <v-btn size="small" color="#26CA99" @click="openDialog">Add</v-btn>
@@ -71,6 +71,7 @@ import CategorySelect from "../components/CategorySelect.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import FilterButton from "../components/FilterButton.vue";
 import { formatDate, getDateRange, sortByDate } from "../commons/utils.js";
+import { getErrorMessage } from "../commons/utils.js";
 
 export default {
   name: "TransactionDashboard",
@@ -105,19 +106,16 @@ export default {
   },
   methods: {
     async fetchTransactions() {
-      // fetch transactions
       const result = await TransactionService.get(1); // TODO: get userId
       this.transactions = sortByDate(result); // sort transactions data by date
     },
     async fetchCategories() {
-      // fetch categories
       const categoryData = await CategoryService.get(1);
       this.categories = this.mapCategories(categoryData);
       this.formData.category = this.categories[1];
     },
     async submitForm(event) {
       event.preventDefault();
-      // console.log("Form submitted with data:", this.formData);
       this.isOpenDialog = !this.isOpenDialog;
       const userId = 1; // TODO: get userId
       let newData = {
@@ -129,33 +127,37 @@ export default {
         walletId: 1,
       };
 
-      let upsertPromise = null;
-      if (this.selectedItem?.id) {
-        upsertPromise = await TransactionService.update(
-          newData,
-          this.selectedItem.id
-        );
-        const resData = this.formatResponseData(upsertPromise);
-        const index = this.transactions.findIndex(
-          (x) => x.id === upsertPromise.id
-        );
-        this.transactions[index] = resData;
-        this.isEdit = false;
-      } else {
-        upsertPromise = await TransactionService.create(newData);
-        const resData = this.formatResponseData(upsertPromise);
-        this.transactions.push(resData);
-      }
+      try {
+        let upsertPromise = null;
+        if (this.selectedItem?.id) {
+          upsertPromise = await TransactionService.update(
+            newData,
+            this.selectedItem.id
+          );
+          const resData = this.formatResponseData(upsertPromise);
+          const index = this.transactions.findIndex(
+            (x) => x.id === upsertPromise.id
+          );
+          this.transactions[index] = resData;
+          this.isEdit = false;
+        } else {
+          upsertPromise = await TransactionService.create(newData);
+          const resData = this.formatResponseData(upsertPromise);
+          this.transactions.push(resData);
+        }
 
-      this.resetForm();
-      this.selectedItem = null;
-      sortByDate(this.transactions); //  sort transactions data by date
+        this.resetForm();
+        this.selectedItem = null;
+        sortByDate(this.transactions); //  sort transactions data by date
+      } catch (error) {
+        console.error("Error: ", error.response ? error.response.data : error);
+        alert("Error : " + getErrorMessage(error));
+      }
     },
     openDialog() {
       this.isOpenDialog = true;
     },
     onCategoryChange(value) {
-      // console.log("category change:", value);
       this.formData.category = value;
     },
     mapCategories(categories) {
@@ -189,7 +191,7 @@ export default {
     },
     resetForm() {
       this.formData.description = "";
-      this.formData.category = this.categories[1];
+      this.formData.category = this.categories[0];
       this.formData.amount = "";
       this.formData.date = formatDate(new Date());
     },
@@ -198,13 +200,10 @@ export default {
       this.selectedItem = selected;
     },
     async onDelete() {
-      // console.log("ondelete", this.selectedItem);
       await TransactionService.delete(this.selectedItem.id);
-      const newData = this.transactions.filter(
+      this.transactions = this.transactions.filter(
         (x) => x.id != this.selectedItem.id
       );
-      this.transactions = newData;
-      this.selectedItem = null;
       this.isOpenConfirmDialog = false;
     },
     formatResponseData(data) {
@@ -220,12 +219,11 @@ export default {
     async onHandleFilter(timeFrame) {
       const { startDate, endDate } = getDateRange(timeFrame);
       const userId = 1; // TODO: get userId
-      const response = await TransactionService.filterByDate(
+      this.transactions = await TransactionService.filterByDate(
         userId,
         formatDate(startDate),
         formatDate(endDate)
       );
-      this.transactions = response;
     },
   },
 };
@@ -252,9 +250,5 @@ export default {
 .header-right-col {
   display: flex;
   gap: 10px;
-}
-
-html {
-  overflow-y: hidden !important;
 }
 </style>

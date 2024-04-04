@@ -52,4 +52,8 @@ export const getDateRange = (timeFrame) => {
   return { startDate, endDate };
 };
 
-
+export const getErrorMessage = (error) => {
+  return error.response && error.response.data && error.response.data.message
+    ? error.response.data.message
+    : "Unknown error";
+};
