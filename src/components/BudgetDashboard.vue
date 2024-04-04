@@ -108,9 +108,6 @@ export default {
       
   },
   methods: {
-    // submitForm() {
-    //   console.log("Form submitted with data:", this.formData);
-    // },
     async fetchBudgets() {
       // fetch budgets
       const result = await BudgetService.get(1); // TODO: get userId
@@ -123,13 +120,6 @@ export default {
       const mappedCategories = categories.filter(
         (category) => category.type === "expense"
       );
-      // const mappedCategories = [
-      //   { props: { header: "Income" } },
-      //   ...incomeCategories,
-      //   { props: { divider: true } },
-      //   { props: { header: "Expense" } },
-      //   ...expenseCategories,
-      // ];
 
       return mappedCategories;
     },
@@ -182,7 +172,7 @@ export default {
         this.isEdit = false;
       } else {
         upsertPromise = await BudgetService.create(newData);
-        console.log("Upsert Promise:", upsertPromise); // Add this line to log upsertPromise
+        console.log("Upsert Promise:", upsertPromise); // promise checking
         const resData = this.formatResponseData(upsertPromise);
         this.budgets.push(resData);
       }
@@ -209,23 +199,6 @@ export default {
       };
       return resData;
     },
-    
-    // formatResponseData(data) {
-    //   const resData = {
-    //     id: data.id,
-    //     category: this.categories.find((x) => x.id === data.categoryId),
-    //     amount: data.amount,
-    //     timeframe: this.getTimeFrameValue(data.timeFrame),
-    //   };
-
-    //   if (this.selectedItem?.id) {
-    //     // Update scenario
-    //     resData.amount = data.amount,
-    //     category: this.categories.find((x) => x.id === data.categoryId),
-    //     resData.timeframe = this.getTimeFrameValue(this.formData.timeFrame);
-    //   }
-    //   return resData;
-    // },
     resetForm() {
       this.formData.amount = "";
       this.selectedCategory = this.categories[0]; // Reset category selection to the first category
