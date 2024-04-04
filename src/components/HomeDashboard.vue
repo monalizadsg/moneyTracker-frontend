@@ -25,7 +25,6 @@
       </v-row>
       <br />
       <h3>Expenses by Category</h3>
-
       <v-row class="mt-5">
         <v-col
           cols="12"
@@ -40,16 +39,11 @@
           </v-card>
         </v-col>
       </v-row>
-
-      <!-- New section for Recent Transactions and Goals without cards -->
       <v-row class="dashboard-sections">
-        <!-- Recent Transactions -->
         <v-col cols="12" md="6">
           <h3>Recent Transactions</h3>
           <TransactionList :transactions="limitedTransactions" />
         </v-col>
-
-        <!-- Goals -->
         <v-col cols="12" md="6">
           <h3>Goals</h3>
           <GoalsList :goals="limitedGoals" />
@@ -63,8 +57,10 @@
 import AppBar from "./AppBar.vue";
 import TransactionService from "@/services/TransactionService";
 import GoalsServices from "@/services/GoalsServices";
-import TransactionList from "../components/TransactionList.vue"; // Update the path as necessary
-import GoalsList from "../components/GoalsList.vue"; // Update the path as necessary
+import TransactionList from "../components/TransactionList.vue"; 
+import GoalsList from "../components/GoalsList.vue"; 
+import { sortByDate } from "../commons/utils.js"; 
+
 
 export default {
   name: "HomeDashboard",
@@ -92,34 +88,38 @@ export default {
       // Limit to 2-3 goals
       return this.goals.slice(0, 3);
     },
+    userId() {
+      // Retrieve the user's ID from localStorage
+      const user = JSON.parse(localStorage.getItem('user'));
+      return user ? user.userId : null;
+    },
   },
   async created() {
-    await this.fetchData();
-    await this.fetchTransactions();
-    await this.fetchGoals();
+    if (this.userId) {
+      await this.fetchData();
+      await this.fetchTransactions();
+      await this.fetchGoals();
+    } else {
+      console.error("User ID not found. User might not be logged in.");
+      // Additional handling like redirecting to login could be added here
+    }
   },
   methods: {
     async fetchData() {
-      const userId = 1; // Replace this with the actual logic to retrieve the user's ID
-      const transactions = await TransactionService.get(userId);
-
+      const transactions = await TransactionService.get(this.userId);
       this.totalIncome = transactions
         .filter((t) => t.category.type === "income")
         .reduce((acc, curr) => acc + curr.amount, 0);
-
       this.totalExpenses = transactions
         .filter((t) => t.category.type === "expense")
         .reduce((acc, curr) => acc + curr.amount, 0);
-
       this.totalBalance = this.totalIncome - this.totalExpenses;
-
       this.calculateExpenseStatistics(transactions);
     },
     calculateExpenseStatistics(transactions) {
       const expenses = transactions.filter(
         (t) => t.category.type === "expense"
       );
-
       this.expenseStats = expenses.reduce((acc, curr) => {
         const categoryName = curr.category.name;
         if (!acc[categoryName]) {
@@ -130,12 +130,12 @@ export default {
       }, {});
     },
     async fetchTransactions() {
-      const userId = 1; // Replace with actual logic to retrieve user's ID
-      this.transactions = await TransactionService.get(userId);
-    },
+  const transactionsData = await TransactionService.get(this.userId);
+  this.transactions = sortByDate(transactionsData); // Ensure transactions are sorted by date
+},
+
     async fetchGoals() {
-      const userId = 1; // Replace with actual logic to retrieve user's ID
-      this.goals = await GoalsServices.get(userId);
+      this.goals = await GoalsServices.get(this.userId);
     },
   },
 };
@@ -149,8 +149,8 @@ export default {
 }
 
 .main-content {
-  flex: 1; /* Allows the main content to expand and fill the available space */
-  overflow-y: auto; /* Ensures that main content can scroll independently if needed */
+  flex: 1;
+  overflow-y: auto;
   padding: 20px;
 }
 
@@ -160,9 +160,5 @@ export default {
 
 .v-card {
   text-align: center;
-}
-
-.transaction-list {
-  height: auto;
 }
 </style>
