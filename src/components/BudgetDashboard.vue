@@ -18,11 +18,13 @@
           :isEdit="isEdit"
         >
           <v-form @submit.prevent="submitForm">
-            <category-select
-              :categories="categories"
-              :value="formData.category"
-              @onChange="onCategoryChange"
-            ></category-select>
+            <template v-if="!isEdit">
+              <category-select
+                :categories="categories"
+                :value="formData.category"
+                @onChange="onCategoryChange"
+              ></category-select>
+            </template>
             <v-text-field
               v-model="formData.amount"
               label="Amount"
@@ -80,7 +82,7 @@ export default {
   },
   data() {
     return {
-      dialogtitle: "Add Budget",
+      // dialogTitle: "Add Budget",
       budgets: [],
       formData: {
         category: "",
@@ -106,6 +108,15 @@ export default {
     // this.formData.timeFrame = this.timeFrames[1];
     this.fetchBudgets();
   },
+  computed: {
+    dialogTitle() {
+      if (this.isEdit && this.selectedItem) {
+        return `Edit Budget for ${this.selectedItem.category.name}`;
+      } else {
+        return "Add Budget";
+      }
+    },
+  },
   methods: {
     async fetchBudgets() {
       // fetch budgets
@@ -127,6 +138,7 @@ export default {
     },
     openDialog() {
       this.isOpenDialog = true;
+      this.isEdit = false;
     },
     async submitForm(event) {
       event.preventDefault();
@@ -183,7 +195,7 @@ export default {
         this.$refs.budgetList.updateBudgets();
       } catch (error) {
         console.error("Error: ", error.response ? error.response.data : error);
-        alert("Error: " + getErrorMessage(error));
+        alert(getErrorMessage(error));
         this.resetForm();
       }
     },
