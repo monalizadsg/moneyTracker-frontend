@@ -184,6 +184,7 @@ export default {
       } catch (error) {
         console.error("Error: ", error.response ? error.response.data : error);
         alert("Error: " + getErrorMessage(error));
+        this.resetForm();
       }
     },
     getTimeFrameValue(timeFrame) {
