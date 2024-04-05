@@ -9,7 +9,7 @@
         </div>
       </div>
       <div>
-        <form-dialog 
+        <form-dialog
           :title="dialogTitle"
           v-model="isOpenDialog"
           @update:isOpenDialog="isOpenDialog = $event"
@@ -44,12 +44,14 @@
         </confirm-dialog>
       </div>
       <div>
-        <budgetList ref="budgetList"
+        <budgetList
+          ref="budgetList"
           :budgets="budgets"
           :onEdit="onClickEdit"
           :onDelete="onClickDelete"
         >
-        </budgetList></div>
+        </budgetList>
+      </div>
     </div>
   </div>
 </template>
@@ -60,11 +62,11 @@ import FormDialog from "./FormDialog.vue";
 import CategoryService from "../services/CategoryService";
 import CategorySelect from "./CategorySelect.vue";
 import TimeFrameSelect from "./TimeFrameSelect.vue";
-import BudgetList from "./BudgetList.vue"
+import BudgetList from "./BudgetList.vue";
 import BudgetService from "../services/BudgetService";
 import ConfirmDialog from "./ConfirmDialog.vue";
+import { getErrorMessage } from "../commons/utils.js";
 // import TransactionService from "../services/TransactionService";
-
 
 export default {
   name: "BudgetDashboard",
@@ -83,7 +85,7 @@ export default {
       formData: {
         category: "",
         amount: "",
-        timeFrame: "Monthly"
+        timeFrame: "Monthly",
       },
       categories: [],
       isOpenDialog: false,
@@ -93,8 +95,8 @@ export default {
       selectedTimeFrame: null,
       isEdit: false,
       selectedItem: null,
-      categoryTotals: {}
-    }
+      categoryTotals: {},
+    };
   },
   async created() {
     // fetch categories
@@ -103,9 +105,6 @@ export default {
     this.formData.category = this.categories[0];
     // this.formData.timeFrame = this.timeFrames[1];
     this.fetchBudgets();
-
-
-      
   },
   methods: {
     async fetchBudgets() {
@@ -139,58 +138,64 @@ export default {
         userId,
         categoryId: this.formData.category.id,
         amount: Number(this.formData.amount),
-        timeFrame: this.getTimeFrameValue(this.formData.timeFrame)
+        timeFrame: this.getTimeFrameValue(this.formData.timeFrame),
       };
       let dataUpdate = {
         categoryId: this.formData.category.id,
         amount: Number(this.formData.amount),
         timeFrame: this.getTimeFrameValue(this.formData.timeFrame),
-      }
+      };
       // Log selected category and time frame
       // console.log("Selected category:", dataUpdate.categoryId);
       // console.log("Selected time frame:", dataUpdate.timeFrame);
       // console.log("user:", dataUpdate.userId);
       // console.log("amount:", dataUpdate.amount);
 
+      try {
+        let upsertPromise = null;
+        if (this.selectedItem?.id) {
+          console.log("ID+ " + this.selectedItem.id);
+          console.log("Selected category:", newData.categoryId);
+          console.log("Selected time frame:", newData.timeFrame);
+          console.log("user:", newData.userId);
+          console.log("amount:", newData.amount);
 
-      let upsertPromise = null;
-      if(this.selectedItem?.id) {
-        console.log("ID+ " + this.selectedItem.id);
-        console.log("Selected category:", newData.categoryId);
-        console.log("Selected time frame:", newData.timeFrame);
-        console.log("user:", newData.userId);
-        console.log("amount:", newData.amount);
-        
-        upsertPromise = await BudgetService.update(dataUpdate, this.selectedItem.id);
-        console.log("Upsert Promise:", upsertPromise); // promise checking
-        
-        const resData = this.formatResponseData(upsertPromise);
-        const index = this.budgets.findIndex(
-          (x) => x.id === upsertPromise.id
-        );
-        this.budgets[index] = resData;
-        this.isEdit = false;
-      } else {
-        upsertPromise = await BudgetService.create(newData);
-        console.log("Upsert Promise:", upsertPromise); // promise checking
-        const resData = this.formatResponseData(upsertPromise);
-        this.budgets.push(resData);
+          upsertPromise = await BudgetService.update(
+            dataUpdate,
+            this.selectedItem.id
+          );
+          console.log("Upsert Promise:", upsertPromise); // promise checking
+
+          const resData = this.formatResponseData(upsertPromise);
+          const index = this.budgets.findIndex(
+            (x) => x.id === upsertPromise.id
+          );
+          this.budgets[index] = resData;
+          this.isEdit = false;
+        } else {
+          upsertPromise = await BudgetService.create(newData);
+          console.log("Upsert Promise:", upsertPromise); // promise checking
+          const resData = this.formatResponseData(upsertPromise);
+          this.budgets.push(resData);
+        }
+
+        this.resetForm();
+        this.$refs.budgetList.updateBudgets();
+      } catch (error) {
+        console.error("Error: ", error.response ? error.response.data : error);
+        alert("Error: " + getErrorMessage(error));
       }
-      
-      this.resetForm();
-      this.$refs.budgetList.updateBudgets();
     },
     getTimeFrameValue(timeFrame) {
       if (timeFrame === "Weekly") {
-          return "week";
+        return "week";
       } else if (timeFrame === "Monthly") {
-          return "month";
+        return "month";
       } else if (timeFrame === "Yearly") {
-          return "year";
-      } 
+        return "year";
+      }
     },
     formatResponseData(data) {
-      
       const resData = {
         id: data.id,
         category: this.categories.find((x) => x.id === data.categoryId),
@@ -224,13 +229,12 @@ export default {
       this.formData.amount = selected.amount;
       // this.formData.timeFrame = selected.timeFrame;
       if (selected.timeFrame === "week") {
-          return this.formData.timeFrame = "Weekly";
+        return (this.formData.timeFrame = "Weekly");
       } else if (selected.timeFrame === "month") {
-          return this.formData.timeFrame = "Monthly";
+        return (this.formData.timeFrame = "Monthly");
       } else if (selected.timeFrame === "year") {
-          return this.formData.timeFrame = "Yearly";
-      } 
-      
+        return (this.formData.timeFrame = "Yearly");
+      }
     },
     onClickDelete(selected) {
       this.isOpenConfirmDialog = true;
