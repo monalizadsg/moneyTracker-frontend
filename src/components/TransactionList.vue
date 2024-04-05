@@ -86,13 +86,10 @@ export default {
 
 <style scoped>
 .transaction-list {
-  /* border: 1px solid red; */
   height: calc(100vh - 110px);
   overflow-y: auto;
 }
-.list {
-  padding: 20px 5px;
-}
+
 .list-item {
   margin-bottom: 10px;
   padding: 10px;
@@ -106,7 +103,14 @@ export default {
   gap: 10px;
   align-items: center;
 }
-.left-col .item-category {
+
+.left-col .item-name {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.left-col .item-category,
+.date {
   font-size: 0.875rem;
   opacity: 0.6;
 }
@@ -130,10 +134,5 @@ export default {
 .expense {
   color: #f4766d;
   font-weight: 800;
-}
-
-.date {
-  font-size: 0.875rem;
-  opacity: 0.6;
 }
 </style>
