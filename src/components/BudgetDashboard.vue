@@ -115,7 +115,7 @@ export default {
       } else {
         return "Add Budget";
       }
-    }
+    },
   },
   methods: {
     async fetchBudgets() {
@@ -137,7 +137,7 @@ export default {
       this.formData.timeFrame = value; // Update formData.timeFrame directly
     },
     openDialog() {
-      this.isOpenDialog = true
+      this.isOpenDialog = true;
       this.isEdit = false;
     },
     async submitForm(event) {
