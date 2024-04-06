@@ -1,40 +1,45 @@
 <template>
   <div class="container">
     <AppBar />
-    <div class="main-content">
-      <div class="header">
-        <h4>Goals</h4>
-           <form-dialog :title="dialogTitle">
-              <v-form>
-                 <v-text-field
-                    v-model="formData.description"
-                    label="Description"
-                    variant="outlined"
-                 ></v-text-field>
-                 <v-text-field
-                    v-model="formData.targetAmount"
-                    label="Goal amount"
-                    variant="outlined"
-                 ></v-text-field>
-                    <v-text-field
-                    v-model="formData.currentAmount"
-                    label="Current saved amount"
-                    variant="outlined"
-                 ></v-text-field>
-                <v-text-field
-                    v-model="formData.startDate"
-                    label="Start Date"
-                    variant="outlined"
-                  ></v-text-field>
-                  <v-text-field
-                    v-model="formData.targetDate"
-                    label="Target Date"
-                    variant="outlined"
-                  ></v-text-field>
+    <div class="main-content d-flex">
+      <div class="gb-left-col">
+        <div class="header">
+          <h3>Goals</h3>
+          <form-dialog :title="dialogTitle">
+            <v-form>
+              <v-text-field
+                v-model="formData.description"
+                label="Description"
+                variant="outlined"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.targetAmount"
+                label="Goal amount"
+                variant="outlined"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.currentAmount"
+                label="Current saved amount"
+                variant="outlined"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.startDate"
+                label="Start Date"
+                variant="outlined"
+              ></v-text-field>
+              <v-text-field
+                v-model="formData.targetDate"
+                label="Target Date"
+                variant="outlined"
+              ></v-text-field>
             </v-form>
           </form-dialog>
+        </div>
+        <GoalsList></GoalsList>
       </div>
-      <GoalsList></GoalsList>
+      <div class="gb-right-col">
+        <goal-transaction-list></goal-transaction-list>
+      </div>
     </div>
   </div>
 </template>
@@ -43,16 +48,18 @@
 import AppBar from "./AppBar.vue";
 import FormDialog from "./FormDialog.vue";
 import GoalsList from "./GoalsList.vue";
+import GoalTransactionList from "./GoalTransactionList.vue";
 
 export default {
-   name: "GoalDashboard",
-    components: {
+  name: "GoalDashboard",
+  components: {
     AppBar,
     FormDialog,
-    GoalsList
+    GoalsList,
+    GoalTransactionList,
   },
-  data(){
-    return{
+  data() {
+    return {
       dialogTitle: "Add Goal",
       formData: {
         description: "",
@@ -61,10 +68,8 @@ export default {
         startDate: "",
         targetDate: "",
       },
-    }
-
+    };
   },
-
 };
 </script>
 
@@ -74,15 +79,22 @@ export default {
 }
 
 .main-content {
-  /* border: 1px solid green; */
   height: calc(100vh - 76px);
+}
+
+.gb-left-col {
+  width: 65%;
   padding: 20px;
+  border-right: 2px solid rgb(226, 226, 226);
+}
+
+.gb-right-col {
+  padding: 20px;
+  width: 35%;
 }
 
 .header {
   display: flex;
-  /* border: 1px solid green; */
   justify-content: space-between;
-   padding: 20px;
 }
 </style>

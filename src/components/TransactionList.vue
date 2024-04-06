@@ -1,5 +1,5 @@
 <template>
-  <div class="transaction-list pb-4">
+  <div class="transaction-list pb-4 pr-2">
     <v-list v-if="transactions" lines="one" class="list">
       <v-list-item
         v-for="(item, i) in transactions"
@@ -30,7 +30,7 @@
                     item.category.type === 'income' ? 'income' : 'expense'
                   "
                 >
-                  {{ getSign(item.category.type) }} ${{ item.amount }}
+                  {{ getSignType(item.category.type) }} ${{ item.amount }}
                 </div>
                 <div class="date">{{ item.date }}</div>
               </div>
@@ -57,6 +57,8 @@
 </template>
 
 <script>
+import { getSign } from "@/commons/utils";
+
 export default {
   name: "TransactionList",
   props: {
@@ -71,8 +73,8 @@ export default {
     },
   },
   methods: {
-    getSign(type) {
-      return type === "income" ? "+" : "-";
+    getSignType(type) {
+      return getSign(type);
     },
     handleEdit(item) {
       this.onEdit(item);

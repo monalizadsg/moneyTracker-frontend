@@ -9,10 +9,21 @@ class CategoryService {
       console.log("Error: " + error);
     }
   }
-  
+
   async create(data) {
     try {
       const response = await api.post(`/categories`, data);
+      return response.data;
+    } catch (error) {
+      console.log("Error: " + error);
+    }
+  }
+
+  async getByName(name, userId) {
+    try {
+      const response = await api.get(
+        `/categories/categoryName?name=${name}&userId=${userId}`
+      );
       return response.data;
     } catch (error) {
       console.log("Error: " + error);

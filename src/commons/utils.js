@@ -13,6 +13,10 @@ export const formatDate = (date) => {
   return format(date, "yyyy-MM-dd");
 };
 
+export const getSign = (type) => {
+  return type === "income" ? "+" : "-";
+};
+
 export const sortByDate = (data) => {
   return data.sort((a, b) => {
     const dateA = new Date(a.date);
