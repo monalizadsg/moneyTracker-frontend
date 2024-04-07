@@ -68,7 +68,6 @@ import BudgetList from "./BudgetList.vue";
 import BudgetService from "../services/BudgetService";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import { getErrorMessage } from "../commons/utils.js";
-// import TransactionService from "../services/TransactionService";
 
 export default {
   name: "BudgetDashboard",
@@ -82,7 +81,6 @@ export default {
   },
   data() {
     return {
-      // dialogTitle: "Add Budget",
       budgets: [],
       formData: {
         category: "",
@@ -105,7 +103,6 @@ export default {
     const categoryData = await CategoryService.get(1);
     this.categories = this.mapCategories(categoryData);
     this.formData.category = this.categories[0];
-    // this.formData.timeFrame = this.timeFrames[1];
     this.fetchBudgets();
   },
   computed: {
@@ -157,27 +154,13 @@ export default {
         amount: Number(this.formData.amount),
         timeFrame: this.getTimeFrameValue(this.formData.timeFrame),
       };
-      // Log selected category and time frame
-      // console.log("Selected category:", dataUpdate.categoryId);
-      // console.log("Selected time frame:", dataUpdate.timeFrame);
-      // console.log("user:", dataUpdate.userId);
-      // console.log("amount:", dataUpdate.amount);
-
       try {
         let upsertPromise = null;
         if (this.selectedItem?.id) {
-          console.log("ID+ " + this.selectedItem.id);
-          console.log("Selected category:", newData.categoryId);
-          console.log("Selected time frame:", newData.timeFrame);
-          console.log("user:", newData.userId);
-          console.log("amount:", newData.amount);
-
           upsertPromise = await BudgetService.update(
             dataUpdate,
             this.selectedItem.id
           );
-          console.log("Upsert Promise:", upsertPromise); // promise checking
-
           const resData = this.formatResponseData(upsertPromise);
           const index = this.budgets.findIndex(
             (x) => x.id === upsertPromise.id
@@ -186,15 +169,12 @@ export default {
           this.isEdit = false;
         } else {
           upsertPromise = await BudgetService.create(newData);
-          console.log("Upsert Promise:", upsertPromise); // promise checking
           const resData = this.formatResponseData(upsertPromise);
           this.budgets.push(resData);
         }
-
         this.resetForm();
         this.$refs.budgetList.updateBudgets();
       } catch (error) {
-        console.error("Error: ", error.response ? error.response.data : error);
         alert(getErrorMessage(error));
         this.resetForm();
       }
@@ -224,23 +204,13 @@ export default {
     },
     onClickEdit(selected) {
       this.isOpenDialog = true;
-      console.log("Selected item in onClickEdit:", selected); // Add this line
       this.loadDataForEditing(selected);
       this.isEdit = true;
       this.selectedItem = selected;
     },
     loadDataForEditing(selected) {
-      // this.formData.category = this.categories.find(
-      //   (x) => x.id === selected.category.id
-      // );
-      // this.formData.amount = selected.amount;
-      // this.formData.timeFrame = this.timeFrames.find(
-      //   (x) => x === selected.timeFrame
-      // );
-      console.log("Selected item in loadDataForEditing:", selected); // Add this line
       this.formData.category = selected.category;
       this.formData.amount = selected.amount;
-      // this.formData.timeFrame = selected.timeFrame;
       if (selected.timeFrame === "week") {
         return (this.formData.timeFrame = "Weekly");
       } else if (selected.timeFrame === "month") {

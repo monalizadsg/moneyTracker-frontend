@@ -34,10 +34,10 @@ export const getDateRange = (timeFrame) => {
 
   const currentDate = new Date();
 
-  if (timeFrame === period.THIS_WEEK) {
+  if (timeFrame === period.THIS_WEEK || timeFrame === "week") {
     startDate = startOfWeek(currentDate);
     endDate = endOfWeek(currentDate);
-  } else if (timeFrame === period.THIS_MONTH) {
+  } else if (timeFrame === period.THIS_MONTH || timeFrame === "month") {
     startDate = startOfMonth(currentDate);
     endDate = endOfMonth(currentDate);
   } else if (timeFrame === period.LAST_MONTH) {
@@ -51,6 +51,7 @@ export const getDateRange = (timeFrame) => {
 
   return { startDate, endDate };
 };
+
 
 export const getErrorMessage = (error) => {
   return error.response && error.response.data && error.response.data.message 

@@ -86,7 +86,6 @@ export default {
 
 <style>
     .category-list {
-        /* border: 1px solid red; */
         height: calc(100vh - 110px);
         overflow-y: auto;
     }
@@ -113,15 +112,9 @@ export default {
         opacity: 0.6;
     }
 
-    /* .right-col {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    } */
-
     .item-name {
+        font-size: 1rem;
         font-weight: bold;
-        font-size: larger
     }
 
     .right-col-item {
