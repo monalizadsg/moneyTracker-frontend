@@ -71,13 +71,6 @@
                 </strong>
               </template>
             </v-progress-linear>
-            <!-- <v-progress-linear :percentage="budget.percentageSpent" color="green" height="15">
-                            <template v-slot:default="{ value }" >
-                                <strong style="font-size: 12px; text-align: center; display: inline-block; width: fit-content;">
-                                {{ value }}%
-                                </strong>
-                            </template>
-                        </v-progress-linear> -->
           </div>
         </v-card>
       </v-list-item>
@@ -88,6 +81,7 @@
 <script>
 import TransactionService from "../services/TransactionService";
 import BudgetService from "../services/BudgetService";
+import { formatDate, getDateRange } from "@/commons/utils";
 
 export default {
   name: "BudgetList",
@@ -132,14 +126,16 @@ export default {
         return (timeFrame = "Yearly");
       }
     },
+
     async calculateBudgetsTotalSpent() {
+      this.categoryTotals = {};
       for (let budget of this.budgets) {
-        const transactions = await TransactionService.getByUserIdAndCategory(
+        let { startDate, endDate } = getDateRange(budget.timeFrame);
+        const transactions = await TransactionService.filterByDate(
           1,
-          budget.category.name
+          formatDate(startDate),
+          formatDate(endDate)
         );
-        console.log("This is to show: " + budget.category.name);
-        console.log("This is to show transactions: " + transactions);
         let totalSpent = 0;
 
         // adding of spent
@@ -150,15 +146,11 @@ export default {
         }
 
         budget.totalSpent = totalSpent;
-        // budget.percentageSpent = this.calculatePercentageSpent(totalSpent, budget.amount);
-        // console.log(budget.percentageSpent);
-
         // Update categoryTotals
         if (!this.categoryTotals[budget.category.name]) {
           this.categoryTotals[budget.category.name] = 0;
         }
         this.categoryTotals[budget.category.name] += totalSpent;
-        console.log("Category " + this.categoryTotals[budget.category.name]);
       }
     },
     calculatePercentageSpent(totalSpent, budgetAmount) {
@@ -200,17 +192,6 @@ export default {
   opacity: 0.6;
 }
 
-/* .right-col {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    } */
-
-.budget-category {
-  font-weight: bold;
-  font-size: 1rem;
-}
-
 .right-col-item {
   text-align: right;
   margin-right: 10px;
@@ -221,4 +202,9 @@ export default {
   margin-right: 20px;
   margin-bottom: 10px;
 }
+
+.budget-category {
+      font-size: 1rem;
+      font-weight: bold;
+    }
 </style>

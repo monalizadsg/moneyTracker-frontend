@@ -73,7 +73,6 @@
         categories: [],
         categoryType: ["Income", "Expense"],
         selectedCategoryType: null,
-        // dialogTitle: "Add Category",
         isOpenConfirmDialog: false,
         isOpenDialog: false,
         formData: {
@@ -202,15 +201,12 @@
   }
   
   .main-content {
-    /* border: 1px solid green; */
     height: calc(100vh - 76px);
-    /* overflow-y: auto; */
     padding: 20px;
   }
 
   .header {
     display: flex;
-    /* border: 1px solid green; */
     justify-content: space-between;
     align-items: center;
   }
