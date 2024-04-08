@@ -55,6 +55,8 @@
   import CategoryTypeSelect from "./CategoryTypeSelect.vue";
   import FormDialog from "./FormDialog.vue";
   import ConfirmDialog from "./ConfirmDialog.vue";
+  import { getErrorMessage } from "../commons/utils.js";
+
  
 
   export default {
@@ -71,7 +73,6 @@
         categories: [],
         categoryType: ["Income", "Expense"],
         selectedCategoryType: null,
-        dialogTitle: "Add Category",
         isOpenConfirmDialog: false,
         isOpenDialog: false,
         formData: {
@@ -85,6 +86,15 @@
     async created() {
       this.fetchCategories();
     },
+    computed: {
+    dialogTitle() {
+      if (this.isEdit && this.selectedItem) {
+        return `Edit ${this.selectedItem.name} Category` ;
+      } else {
+        return "Add Category";
+      }
+    }
+  },
     methods: {
       async fetchCategories(){
         const result = await CategoryService.get(1);
@@ -92,6 +102,7 @@
       },
       openDialog() {
       this.isOpenDialog = true;
+      this.isEdit = false;
       },
       async submitForm(event) {
         event.preventDefault();
@@ -102,27 +113,31 @@
           type: this.getCategoryType(this.formData.type),
           userId,
         };
-        
-        let upsertPromise = null;
-        if (this.selectedItem?.id) {
-          upsertPromise = await CategoryService.update(
-            newData,
-            this.selectedItem.id
-          );
-          const resData = this.formatResponseData(upsertPromise);
-          const index = this.categories.findIndex(
-            (item) => item.id === upsertPromise.id
-          );
-          this.categories[index] = resData;
-          this.isEdit = false;
-        } else {
-          upsertPromise = await CategoryService.create(newData);
-          const resData = this.formatResponseData(upsertPromise);
-          this.categories.push(resData);
-        }
-        this.resetForm();
-        this.selectedItem = null;
-        console.log("open dialog", this.isOpenDialog);
+        try {
+          let upsertPromise = null;
+          if (this.selectedItem?.id) {
+            upsertPromise = await CategoryService.update(
+              newData,
+              this.selectedItem.id
+            );
+            const resData = this.formatResponseData(upsertPromise);
+            const index = this.categories.findIndex(
+              (item) => item.id === upsertPromise.id
+            );
+            this.categories[index] = resData;
+            this.isEdit = false;
+          } else {
+            upsertPromise = await CategoryService.create(newData);
+            const resData = this.formatResponseData(upsertPromise);
+            this.categories.push(resData);
+          }
+          this.resetForm();
+          this.selectedItem = null;
+          console.log("open dialog", this.isOpenDialog);
+        } catch (error) {
+          ("Error: " + getErrorMessage(error));
+          alert("Error: " + getErrorMessage(error));
+        }          
       },
       onCategoryTypeChange(val) {
         this.formData.type = val;
@@ -186,15 +201,12 @@
   }
   
   .main-content {
-    /* border: 1px solid green; */
     height: calc(100vh - 76px);
-    /* overflow-y: auto; */
     padding: 20px;
   }
 
   .header {
     display: flex;
-    /* border: 1px solid green; */
     justify-content: space-between;
     align-items: center;
   }
