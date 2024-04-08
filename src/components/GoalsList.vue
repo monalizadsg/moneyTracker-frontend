@@ -29,7 +29,7 @@
                 ${{ goal.currentAmount }} of ${{ goal.targetAmount }}
               </div>
             </div>
-            <div>
+            <div v-if="!isReadOnly">
               <v-btn
                 color="grey-lighten-1"
                 icon="mdi-pencil"
@@ -88,6 +88,10 @@ export default {
     onDelete: {
       type: Function,
       required: true,
+    },
+    isReadOnly: {
+      type: Boolean,
+      required: false,
     },
   },
   data() {

@@ -34,20 +34,22 @@
                 </div>
                 <div class="date">{{ item.date }}</div>
               </div>
-              <v-btn
-                color="grey-lighten-1"
-                icon="mdi-pencil"
-                variant="text"
-                size="small"
-                @click="handleEdit(item)"
-              ></v-btn>
-              <v-btn
-                color="grey-lighten-1"
-                icon="mdi-delete"
-                variant="text"
-                size="small"
-                @click="handleDelete(item)"
-              ></v-btn>
+              <div v-if="!isReadOnly">
+                <v-btn
+                  color="grey-lighten-1"
+                  icon="mdi-pencil"
+                  variant="text"
+                  size="small"
+                  @click="handleEdit(item)"
+                ></v-btn>
+                <v-btn
+                  color="grey-lighten-1"
+                  icon="mdi-delete"
+                  variant="text"
+                  size="small"
+                  @click="handleDelete(item)"
+                ></v-btn>
+              </div>
             </div>
           </template>
         </v-card>
@@ -70,6 +72,10 @@ export default {
     onDelete: {
       type: Function,
       required: true,
+    },
+    isReadOnly: {
+      type: Boolean,
+      required: false,
     },
   },
   methods: {

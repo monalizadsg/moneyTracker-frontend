@@ -42,11 +42,11 @@
       <v-row class="dashboard-sections">
         <v-col cols="12" md="6">
           <h3>Recent Transactions</h3>
-          <TransactionList :transactions="limitedTransactions" />
+          <TransactionList :transactions="limitedTransactions" isReadOnly />
         </v-col>
         <v-col cols="12" md="6">
           <h3>Goals</h3>
-          <GoalsList :goals="limitedGoals" />
+          <GoalsList :goals="limitedGoals" isReadOnly />
         </v-col>
       </v-row>
     </div>
