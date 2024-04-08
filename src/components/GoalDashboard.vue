@@ -60,7 +60,7 @@
       v-model="isOpenConfirmDialog"
       @update:isOpenConfirmDialog="isOpenConfirmDialog = $event"
       :onDelete="onDelete"
-      msg="Take note that your current money in this goal wallet will be transferred to your main wallet"
+      msg="Take note that your current money in this goal wallet (if greater than 0) will be transferred to your main wallet"
     >
     </confirm-dialog>
   </div>
@@ -184,49 +184,53 @@ export default {
       // transfer the current amount of the goal to the main wallet
       const userId = 1; // TODO: get userId
 
-      // get income transfer category
-      const incTransferCategory = await CategoryService.getByName(
-        "Incoming Transfer",
-        userId
-      );
+      if (this.selectedItem.currentAmount > 0) {
+        this.confirmationMsg =
+          "Take note that your current money in this goal wallet will be transferred to your main wallet";
+        // get income transfer category
+        const incTransferCategory = await CategoryService.getByName(
+          "Incoming Transfer",
+          userId
+        );
 
-      // get expense transfer category
-      const expTransferCategory = await CategoryService.getByName(
-        "Outgoing Transfer",
-        userId
-      );
+        // get expense transfer category
+        const expTransferCategory = await CategoryService.getByName(
+          "Outgoing Transfer",
+          userId
+        );
 
-      // incoming transfer data to transactions
-      const incTransferData = {
-        description: this.selectedItem.name,
-        categoryId: incTransferCategory.id,
-        amount: Number(this.selectedItem.currentAmount),
-        date: formatDate(new Date()),
-        userId,
-        walletId: this.basicWalletId,
-      };
+        // incoming transfer data to transactions
+        const incTransferData = {
+          description: this.selectedItem.name,
+          categoryId: incTransferCategory.id,
+          amount: Number(this.selectedItem.currentAmount),
+          date: formatDate(new Date()),
+          userId,
+          walletId: this.basicWalletId,
+        };
 
-      // create transaction for incoming transfer to the main wallet
-      const incTransferResult = await TransactionService.create(
-        incTransferData
-      );
-      console.log("incoming transfer result", incTransferResult);
+        // create transaction for incoming transfer to the main wallet
+        const incTransferResult = await TransactionService.create(
+          incTransferData
+        );
+        console.log("incoming transfer result", incTransferResult);
 
-      // outgoing transfer data from goal wallet
-      const expTransferData = {
-        description: this.selectedItem.name,
-        categoryId: expTransferCategory.id,
-        amount: Number(this.selectedItem.currentAmount),
-        date: formatDate(new Date()),
-        userId,
-        walletId: this.selectedItem.walletId,
-      };
+        // outgoing transfer data from goal wallet
+        const expTransferData = {
+          description: this.selectedItem.name,
+          categoryId: expTransferCategory.id,
+          amount: Number(this.selectedItem.currentAmount),
+          date: formatDate(new Date()),
+          userId,
+          walletId: this.selectedItem.walletId,
+        };
 
-      // create transaction for outgoing transfer from goal wallet
-      const expTransferResult = await TransactionService.create(
-        expTransferData
-      );
-      console.log("outgoing transfer result", expTransferResult);
+        // create transaction for outgoing transfer from goal wallet
+        const expTransferResult = await TransactionService.create(
+          expTransferData
+        );
+        console.log("outgoing transfer result", expTransferResult);
+      }
 
       // delete goal after transferring the current amount
       await GoalsServices.delete(this.selectedItem.id);
