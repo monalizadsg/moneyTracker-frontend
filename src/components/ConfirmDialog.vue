@@ -12,6 +12,10 @@
       <v-card-text class="pb-5">
         Are you sure you want to delete this {{ title.toLowerCase() }}? <br />
         You can&apos;t undo this action afterwards.
+        <br />
+        <strong>
+          {{ msg }}
+        </strong>
       </v-card-text>
       <v-card-actions class="pt-3">
         <v-spacer></v-spacer>
@@ -39,6 +43,10 @@ export default {
     onDelete: {
       type: Function,
       required: true,
+    },
+    msg: {
+      type: String,
+      required: false,
     },
   },
   methods: {

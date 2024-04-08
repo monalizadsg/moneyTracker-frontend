@@ -57,10 +57,9 @@
 import AppBar from "./AppBar.vue";
 import TransactionService from "@/services/TransactionService";
 import GoalsServices from "@/services/GoalsServices";
-import TransactionList from "../components/TransactionList.vue"; 
-import GoalsList from "../components/GoalsList.vue"; 
-import { sortByDate } from "../commons/utils.js"; 
-
+import TransactionList from "../components/TransactionList.vue";
+import GoalsList from "../components/GoalsList.vue";
+import { sortByDate } from "../commons/utils.js";
 
 export default {
   name: "HomeDashboard",
@@ -90,7 +89,7 @@ export default {
     },
     userId() {
       // Retrieve the user's ID from localStorage
-      const user = JSON.parse(localStorage.getItem('user'));
+      const user = JSON.parse(localStorage.getItem("user"));
       return user ? user.userId : null;
     },
   },
@@ -130,9 +129,9 @@ export default {
       }, {});
     },
     async fetchTransactions() {
-  const transactionsData = await TransactionService.get(this.userId);
-  this.transactions = sortByDate(transactionsData); // Ensure transactions are sorted by date
-},
+      const transactionsData = await TransactionService.get(this.userId);
+      this.transactions = sortByDate(transactionsData); // Ensure transactions are sorted by date
+    },
 
     async fetchGoals() {
       this.goals = await GoalsServices.get(this.userId);

@@ -80,7 +80,7 @@ export default {
       isOpenDialog: false,
       isTransfer: true,
       transferData: {
-        amount: 0,
+        amount: "",
         category: {},
         date: formatDate(new Date()),
         goal: null,
@@ -162,7 +162,7 @@ export default {
       );
       console.log("result", incTransferResult);
 
-      // outcoming transfer data from transactions
+      // outgoing transfer data from transactions
       const expTransferData = {
         description: goal.name,
         categoryId: this.expTransferCategory.id,
@@ -176,8 +176,9 @@ export default {
       const expTransferResult = await TransactionService.create(
         expTransferData
       );
-      // console.log("result", expTransferResult);
+
       this.handleOnTransferSuccess(expTransferResult);
+      this.resetForm();
     },
     handleChangeWallet(value) {
       this.transferData.goal = value;
