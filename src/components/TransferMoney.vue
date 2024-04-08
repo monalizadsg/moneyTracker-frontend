@@ -60,7 +60,7 @@ import CategoryService from "@/services/CategoryService";
 import TransactionService from "@/services/TransactionService";
 import CategorySelect from "../components/CategorySelect.vue";
 import WalletService from "../services/WalletService";
-import { formatDate } from "@/commons/utils";
+import { formatDate, getUserId } from "@/commons/utils";
 import GoalsServices from "@/services/GoalsServices";
 export default {
   name: "TransferMoney",
@@ -89,16 +89,18 @@ export default {
       categories: [],
       expTransferCategory: null,
       basicWalletId: null,
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     this.getBasicWalletId();
     this.fetchGoals();
     this.fetchCategory();
   },
   methods: {
     async fetchGoals() {
-      const userId = 1; // TODO: get userID
+      const userId = this.userId;
       const result = await GoalsServices.get(userId);
       const mappedGoalWallets = result.map((x) => ({
         id: x.id,
@@ -110,7 +112,7 @@ export default {
     },
 
     async fetchCategory() {
-      const userId = 1; // TODO: get userID
+      const userId = this.userId;
       // get income transfer category
       const incTransferCategory = await CategoryService.getByName(
         "Incoming Transfer",
@@ -118,7 +120,6 @@ export default {
       );
       this.categories.push(incTransferCategory);
       this.transferData.category = incTransferCategory; // set as default category
-      // console.log(incTransferCategory);
 
       // get expense transfer category
       this.expTransferCategory = await CategoryService.getByName(
@@ -128,9 +129,9 @@ export default {
     },
 
     async getBasicWalletId() {
-      const result = await WalletService.get(1); // TODO: update userid
+      const result = await WalletService.get(this.userId);
       const wallet = result.find((x) => x.type === "BASIC");
-      // console.log("transfer wallet", wallet.id);
+
       this.basicWalletId = wallet.id;
     },
 
@@ -144,7 +145,7 @@ export default {
       // console.log(amount, category, date, goal);
 
       this.isOpenDialog = !this.isOpenDialog;
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
 
       // incoming transfer data to goals
       const incTransferData = {

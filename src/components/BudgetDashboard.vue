@@ -67,7 +67,7 @@ import TimeFrameSelect from "./TimeFrameSelect.vue";
 import BudgetList from "./BudgetList.vue";
 import BudgetService from "../services/BudgetService";
 import ConfirmDialog from "./ConfirmDialog.vue";
-import { getErrorMessage } from "../commons/utils.js";
+import { getErrorMessage, getUserId } from "../commons/utils.js";
 
 export default {
   name: "BudgetDashboard",
@@ -96,9 +96,11 @@ export default {
       isEdit: false,
       selectedItem: null,
       categoryTotals: {},
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     // fetch categories
     const categoryData = await CategoryService.get(1);
     this.categories = this.mapCategories(categoryData);
@@ -117,7 +119,7 @@ export default {
   methods: {
     async fetchBudgets() {
       // fetch budgets
-      const result = await BudgetService.get(1); // TODO: get userId
+      const result = await BudgetService.get(this.userId);
       this.budgets = result;
     },
     onCategoryChange(value) {
@@ -140,11 +142,9 @@ export default {
     async submitForm(event) {
       event.preventDefault();
       this.isOpenDialog = !this.isOpenDialog;
-      //hardcoded userId
-      const userId = 1;
 
       let newData = {
-        userId,
+        userId: this.userId,
         categoryId: this.formData.category.id,
         amount: Number(this.formData.amount),
         timeFrame: this.getTimeFrameValue(this.formData.timeFrame),
@@ -154,6 +154,7 @@ export default {
         amount: Number(this.formData.amount),
         timeFrame: this.getTimeFrameValue(this.formData.timeFrame),
       };
+
       try {
         let upsertPromise = null;
         if (this.selectedItem?.id) {

@@ -76,7 +76,7 @@ import FormDialog from "./FormDialog.vue";
 import ConfirmDialog from "./ConfirmDialog.vue";
 import GoalsList from "./GoalsList.vue";
 import GoalTransactionList from "./GoalTransactionList.vue";
-import { formatDate, getErrorMessage } from "@/commons/utils";
+import { formatDate, getErrorMessage, getUserId } from "@/commons/utils";
 
 export default {
   name: "GoalDashboard",
@@ -103,15 +103,17 @@ export default {
       isEdit: false,
       selectedItem: null,
       basicWalletId: null,
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     this.getBasicWalletId();
     this.fetchGoals();
   },
   methods: {
     async fetchGoals() {
-      const result = await GoalsServices.get(1); // TODO: get userId
+      const result = await GoalsServices.get(this.userId);
       this.goals = result;
     },
     openDialog() {
@@ -121,7 +123,7 @@ export default {
       event.preventDefault();
       this.isOpenDialog = !this.isOpenDialog;
 
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
 
       let newData = {
         userId,
@@ -182,11 +184,9 @@ export default {
     },
     async onDelete() {
       // transfer the current amount of the goal to the main wallet
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
 
       if (this.selectedItem.currentAmount > 0) {
-        this.confirmationMsg =
-          "Take note that your current money in this goal wallet will be transferred to your main wallet";
         // get income transfer category
         const incTransferCategory = await CategoryService.getByName(
           "Incoming Transfer",
@@ -239,7 +239,7 @@ export default {
       this.isOpenConfirmDialog = false;
     },
     async getBasicWalletId() {
-      const result = await WalletService.get(1); // TODO: update userid
+      const result = await WalletService.get(this.userId);
       const wallet = result.find((x) => x.type === "BASIC");
       this.basicWalletId = wallet.id;
     },

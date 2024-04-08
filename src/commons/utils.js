@@ -9,6 +9,11 @@ import {
   subMonths,
 } from "date-fns";
 
+export const getUserId = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user.userId;
+};
+
 export const formatDate = (date) => {
   return format(date, "yyyy-MM-dd");
 };
@@ -56,9 +61,8 @@ export const getDateRange = (timeFrame) => {
   return { startDate, endDate };
 };
 
-
 export const getErrorMessage = (error) => {
-  return error.response && error.response.data && error.response.data.message 
+  return error.response && error.response.data && error.response.data.message
     ? error.response.data.message
     : "Unknown error";
 };

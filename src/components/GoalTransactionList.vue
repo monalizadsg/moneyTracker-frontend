@@ -42,7 +42,7 @@
 
 <script>
 import TransactionService from "@/services/TransactionService";
-import { sortByDate, getSign } from "@/commons/utils";
+import { sortByDate, getSign, getUserId } from "@/commons/utils";
 import WalletService from "@/services/WalletService";
 
 export default {
@@ -51,22 +51,23 @@ export default {
   data() {
     return {
       goalTransactions: [],
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     this.fetchTransactions();
   },
   methods: {
     async fetchTransactions() {
+      const userId = this.userId;
       // get wallet id -> to filter transactions from main wallet
-      const walletResult = await WalletService.get(1); // todo: update userid
+      const walletResult = await WalletService.get(userId);
       const wallet = walletResult.find((x) => x.type === "BASIC");
-      //   console.log("wallet transactions", wallet.id);
 
       // get transactions of goal wallets only
-      const result = await TransactionService.get(1); // TODO: get userId
+      const result = await TransactionService.get(userId);
       const filtered = result.filter((item) => item.walletId != wallet.id);
-      //   console.log("filtered", filtered);
       this.goalTransactions = sortByDate(filtered); // sort transactions data by date
     },
 
@@ -94,9 +95,5 @@ export default {
 .date {
   font-size: 0.875rem;
   opacity: 0.6;
-}
-
-.v-card-item {
-  border: 1px solid red;
 }
 </style>

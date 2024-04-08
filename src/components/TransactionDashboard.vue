@@ -78,7 +78,7 @@ import ConfirmDialog from "../components/ConfirmDialog.vue";
 import FilterButton from "../components/FilterButton.vue";
 import TransferMoney from "../components/TransferMoney.vue";
 import { formatDate, getDateRange, sortByDate } from "../commons/utils.js";
-import { getErrorMessage } from "../commons/utils.js";
+import { getErrorMessage, getUserId } from "../commons/utils.js";
 
 export default {
   name: "TransactionDashboard",
@@ -107,36 +107,38 @@ export default {
       isEdit: false,
       selectedItem: null,
       isDisabled: false,
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     this.fetchCategories();
     this.fetchTransactions();
   },
   methods: {
     async fetchTransactions() {
+      const userId = this.userId;
       // get wallet id -> to filter transactions from main wallet
-      const walletResult = await WalletService.get(1); // todo: update userid
+      const walletResult = await WalletService.get(userId);
       const wallet = walletResult.find((x) => x.type === "BASIC");
 
       // get all transactions
-      const transactionResult = await TransactionService.get(1); // TODO: get userId
+      const transactionResult = await TransactionService.get(userId);
       const filtered = transactionResult.filter(
         (item) => item.walletId == wallet.id
       ); // get transactions of the main wallet only
-      // console.log("filtered", filtered);
-      // console.log("walletid", this.basicWalletId);
+
       this.transactions = sortByDate(filtered); // sort transactions data by date
     },
     async fetchCategories() {
-      const categoryData = await CategoryService.get(1);
+      const categoryData = await CategoryService.get(this.userId);
       this.categories = this.mapCategories(categoryData);
       this.formData.category = this.categories[1];
     },
     async submitForm(event) {
       event.preventDefault();
       this.isOpenDialog = !this.isOpenDialog;
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
       let newData = {
         description: this.formData.description,
         categoryId: this.formData.category.id,
@@ -237,7 +239,7 @@ export default {
     },
     async onHandleFilter(timeFrame) {
       const { startDate, endDate } = getDateRange(timeFrame);
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
       this.transactions = await TransactionService.filterByDate(
         userId,
         formatDate(startDate),
@@ -245,7 +247,6 @@ export default {
       );
     },
     async onHandleAddTransferData(transferData) {
-      // console.log("transferData", transferData);
       this.transactions.unshift(this.formatResponseData(transferData));
     },
   },
@@ -258,7 +259,6 @@ export default {
 }
 
 .main-content {
-  /* border: 1px solid green; */
   height: calc(100vh - 90px);
 }
 
