@@ -8,6 +8,7 @@
     label="Category"
     placeholder="Select Category"
     return-object
+    :disabled="isDisabled"
     @update:modelValue="handleChange"
   >
     <!-- eslint-disable-next-line -->
@@ -27,6 +28,10 @@ export default {
   props: {
     categories: Array,
     value: Object,
+    isDisabled: {
+      type: Boolean,
+      default: false,
+    },
   },
   data() {
     return {

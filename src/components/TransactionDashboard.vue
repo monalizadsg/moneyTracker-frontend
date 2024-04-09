@@ -1,63 +1,68 @@
 <template>
   <div class="container">
     <AppBar />
-    <div class="main-content">
-      <div class="header pb-2">
-        <h3>Transactions</h3>
-        <div class="header-right-col">
-          <filter-button :onClickMenu="onHandleFilter"></filter-button>
-          <v-btn size="small" color="#26CA99" @click="openDialog">Add</v-btn>
+    <div class="main-content d-flex">
+      <div class="td-left-col d-flex flex-column">
+        <div class="header d-flex pb-2">
+          <h3>Transactions</h3>
+          <div class="header-right-col d-flex">
+            <filter-button :onClickMenu="onHandleFilter"></filter-button>
+            <v-btn size="small" color="#26CA99" @click="openDialog">Add</v-btn>
+          </div>
+        </div>
+        <div>
+          <transaction-list
+            :transactions="transactions"
+            :onEdit="onClickEdit"
+            :onDelete="onClickDelete"
+          ></transaction-list>
         </div>
       </div>
-      <div>
-        <form-dialog
-          :title="dialogTitle"
-          v-model="isOpenDialog"
-          @update:isOpenDialog="isOpenDialog = $event"
-          :onSubmit="submitForm"
-          :resetForm="resetForm"
-          :isEdit="isEdit"
-        >
-          <v-form>
-            <v-text-field
-              v-model="formData.description"
-              label="Description"
-              variant="outlined"
-            ></v-text-field>
-            <category-select
-              :categories="categories"
-              :value="formData.category"
-              @onChange="onCategoryChange"
-            ></category-select>
-            <v-text-field
-              v-model="formData.amount"
-              label="Amount"
-              variant="outlined"
-            ></v-text-field>
-            <v-text-field
-              type="date"
-              v-model="formData.date"
-              label="Date"
-              variant="outlined"
-            ></v-text-field>
-          </v-form>
-        </form-dialog>
-        <confirm-dialog
-          title="Transaction"
-          v-model="isOpenConfirmDialog"
-          @update:isOpenConfirmDialog="isOpenConfirmDialog = $event"
-          :onDelete="onDelete"
-        >
-        </confirm-dialog>
-      </div>
-      <div>
-        <transaction-list
-          :transactions="transactions"
-          :onEdit="onClickEdit"
-          :onDelete="onClickDelete"
-        ></transaction-list>
+      <div class="td-right-col px-4 py-4">
+        <transfer-money
+          :onAddTransferData="onHandleAddTransferData"
+        ></transfer-money>
       </div>
     </div>
+    <form-dialog
+      :title="dialogTitle"
+      v-model="isOpenDialog"
+      @update:isOpenDialog="isOpenDialog = $event"
+      :onSubmit="submitForm"
+      :resetForm="resetForm"
+      :isEdit="isEdit"
+    >
+      <v-form>
+        <v-text-field
+          v-model="formData.description"
+          label="Description"
+          variant="outlined"
+        ></v-text-field>
+        <category-select
+          :categories="categories"
+          :value="formData.category"
+          @onChange="onCategoryChange"
+        ></category-select>
+        <v-text-field
+          v-model="formData.amount"
+          label="Amount"
+          variant="outlined"
+        ></v-text-field>
+        <v-text-field
+          type="date"
+          v-model="formData.date"
+          label="Date"
+          variant="outlined"
+        ></v-text-field>
+      </v-form>
+    </form-dialog>
+    <confirm-dialog
+      title="Transaction"
+      v-model="isOpenConfirmDialog"
+      @update:isOpenConfirmDialog="isOpenConfirmDialog = $event"
+      :onDelete="onDelete"
+    >
+    </confirm-dialog>
   </div>
 </template>
 
@@ -67,11 +72,13 @@ import FormDialog from "./FormDialog.vue";
 import TransactionList from "../components/TransactionList.vue";
 import CategoryService from "../services/CategoryService";
 import TransactionService from "@/services/TransactionService";
+import WalletService from "@/services/WalletService";
 import CategorySelect from "../components/CategorySelect.vue";
 import ConfirmDialog from "../components/ConfirmDialog.vue";
 import FilterButton from "../components/FilterButton.vue";
+import TransferMoney from "../components/TransferMoney.vue";
 import { formatDate, getDateRange, sortByDate } from "../commons/utils.js";
-import { getErrorMessage } from "../commons/utils.js";
+import { getErrorMessage, getUserId } from "../commons/utils.js";
 
 export default {
   name: "TransactionDashboard",
@@ -82,6 +89,7 @@ export default {
     CategorySelect,
     ConfirmDialog,
     FilterButton,
+    TransferMoney,
   },
   data() {
     return {
@@ -98,26 +106,39 @@ export default {
       categories: [],
       isEdit: false,
       selectedItem: null,
+      isDisabled: false,
+      userId: null,
     };
   },
   async created() {
+    this.userId = getUserId();
     this.fetchCategories();
     this.fetchTransactions();
   },
   methods: {
     async fetchTransactions() {
-      const result = await TransactionService.get(1); // TODO: get userId
-      this.transactions = sortByDate(result); // sort transactions data by date
+      const userId = this.userId;
+      // get wallet id -> to filter transactions from main wallet
+      const walletResult = await WalletService.get(userId);
+      const wallet = walletResult.find((x) => x.type === "BASIC");
+
+      // get all transactions
+      const transactionResult = await TransactionService.get(userId);
+      const filtered = transactionResult.filter(
+        (item) => item.walletId == wallet.id
+      ); // get transactions of the main wallet only
+
+      this.transactions = sortByDate(filtered); // sort transactions data by date
     },
     async fetchCategories() {
-      const categoryData = await CategoryService.get(1);
+      const categoryData = await CategoryService.get(this.userId);
       this.categories = this.mapCategories(categoryData);
       this.formData.category = this.categories[1];
     },
     async submitForm(event) {
       event.preventDefault();
       this.isOpenDialog = !this.isOpenDialog;
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
       let newData = {
         description: this.formData.description,
         categoryId: this.formData.category.id,
@@ -218,12 +239,15 @@ export default {
     },
     async onHandleFilter(timeFrame) {
       const { startDate, endDate } = getDateRange(timeFrame);
-      const userId = 1; // TODO: get userId
+      const userId = this.userId;
       this.transactions = await TransactionService.filterByDate(
         userId,
         formatDate(startDate),
         formatDate(endDate)
       );
+    },
+    async onHandleAddTransferData(transferData) {
+      this.transactions.unshift(this.formatResponseData(transferData));
     },
   },
 };
@@ -235,20 +259,21 @@ export default {
 }
 
 .main-content {
-  /* border: 1px solid green; */
-  height: calc(100vh - 76px);
+  height: calc(100vh - 90px);
+}
+
+.td-left-col {
+  width: 70%;
   padding: 20px;
+  border-right: 2px solid rgb(226, 226, 226);
 }
 
 .header {
-  display: flex;
-  /* border: 1px solid green; */
   justify-content: space-between;
   align-items: center;
 }
 
 .header-right-col {
-  display: flex;
   gap: 10px;
 }
 </style>

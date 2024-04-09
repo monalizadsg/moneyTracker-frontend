@@ -27,6 +27,14 @@
           >Save</v-btn
         >
         <v-btn
+          v-else-if="isTransfer"
+          color="#26CA99"
+          class="body-2 font-weight-bold"
+          outlined
+          @click="onSubmit"
+          >Transfer</v-btn
+        >
+        <v-btn
           v-else
           color="#26CA99"
           class="body-2 font-weight-bold"
@@ -45,6 +53,7 @@ export default {
   props: {
     isOpenDialog: Boolean,
     isEdit: Boolean,
+    isTransfer: Boolean,
     title: {
       type: String,
       default: "Dialog Title",
