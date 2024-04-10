@@ -70,6 +70,7 @@ export default {
   methods: {
     close() {
       this.$emit("update:isOpenDialog", false);
+      this.$emit("update:isEdit", false);
       this.resetForm();
     },
   },

@@ -21,6 +21,7 @@
       :title="dialogTitle"
       v-model="isOpenDialog"
       @update:isOpenDialog="isOpenDialog = $event"
+      @update:isEdit="isEdit = $event"
       :onSubmit="submitForm"
       :resetForm="resetForm"
       :isEdit="isEdit"
@@ -89,7 +90,6 @@ export default {
   },
   data() {
     return {
-      dialogTitle: "Add Goal",
       isOpenDialog: false,
       isOpenConfirmDialog: false,
       formData: {
@@ -110,6 +110,15 @@ export default {
     this.userId = getUserId();
     this.getBasicWalletId();
     this.fetchGoals();
+  },
+  computed: {
+    dialogTitle() {
+      if (this.isEdit) {
+        return "Edit Goal";
+      } else {
+        return "Add Goal";
+      }
+    },
   },
   methods: {
     async fetchGoals() {

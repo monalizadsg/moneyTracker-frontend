@@ -28,6 +28,7 @@
       :title="dialogTitle"
       v-model="isOpenDialog"
       @update:isOpenDialog="isOpenDialog = $event"
+      @update:isEdit="isEdit = $event"
       :onSubmit="submitForm"
       :resetForm="resetForm"
       :isEdit="isEdit"
@@ -94,7 +95,6 @@ export default {
   data() {
     return {
       transactions: [],
-      dialogTitle: "Add Transaction",
       isOpenDialog: false,
       isOpenConfirmDialog: false,
       formData: {
@@ -115,6 +115,15 @@ export default {
     this.userId = getUserId();
     this.fetchCategories();
     this.fetchTransactions();
+  },
+  computed: {
+    dialogTitle() {
+      if (this.isEdit) {
+        return "Edit Transaction";
+      } else {
+        return "Add Transaction";
+      }
+    },
   },
   methods: {
     async fetchTransactions() {
