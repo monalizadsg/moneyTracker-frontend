@@ -47,6 +47,7 @@ const routes = [
     path: "/categories",
     component: CategoryDashboard,
     name: "Caetegory",
+    meta: { requiresAuth: true }, // Assuming these pages also require authentication
   },
 ];
 
