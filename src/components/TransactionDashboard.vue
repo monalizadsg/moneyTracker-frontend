@@ -108,6 +108,7 @@ export default {
       selectedItem: null,
       isDisabled: false,
       userId: null,
+      basicWalletId: null,
     };
   },
   async created() {
@@ -121,6 +122,7 @@ export default {
       // get wallet id -> to filter transactions from main wallet
       const walletResult = await WalletService.get(userId);
       const wallet = walletResult.find((x) => x.type === "BASIC");
+      this.basicWalletId = wallet.id;
 
       // get all transactions
       const transactionResult = await TransactionService.get(userId);
@@ -145,7 +147,7 @@ export default {
         amount: Number(this.formData.amount),
         date: this.formData.date,
         userId,
-        walletId: 1,
+        walletId: this.basicWalletId,
       };
 
       try {
@@ -164,12 +166,11 @@ export default {
         } else {
           upsertPromise = await TransactionService.create(newData);
           const resData = this.formatResponseData(upsertPromise);
-          this.transactions.push(resData);
+          this.transactions.unshift(resData);
         }
 
         this.resetForm();
         this.selectedItem = null;
-        sortByDate(this.transactions); //  sort transactions data by date
       } catch (error) {
         console.error("Error: ", error.response ? error.response.data : error);
         alert("Error : " + getErrorMessage(error));
